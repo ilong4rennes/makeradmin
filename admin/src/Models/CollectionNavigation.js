@@ -1,60 +1,77 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation, useHistory } from "react-router-dom";
 
-export default class CollectionNavigation extends React.Component {
-    constructor(props) {
-        super(props);
-        this.onSearch = this.onSearch.bind(this);
-        this.onPageNav = this.onPageNav.bind(this);
+export default function CollectionNavigation({ collection }) {
+    const location = useLocation();
+    const history = useHistory();
+    const params = new URLSearchParams(location.search);
 
-        this.params = new URLSearchParams(this.props.location.search);
-        const search = this.params.get("search") || "";
-        const page = Number(this.params.get("page")) || 1;
-        this.state = { search, page };
-    }
+    const [search, setSearch] = useState(params.get("search") || "");
+    const [page, setPage] = useState(Number(params.get("page")) || 1);
 
-    componentDidMount() {
-        this.unsubscribe = this.collection.subscribe(({ page }) =>
-            this.gotNewData(page),
-        );
-    }
+    // Helper function to update URL history
+    const setHistory = () => {
+        if (search === "") {
+            params.delete("search");
+        } else {
+            params.set("search", search);
+        }
 
-    componentWillUnmount() {
-        this.unsubscribe();
-    }
+        if (page === 1) {
+            params.delete("page");
+        } else {
+            params.set("page", page);
+        }
 
-    gotNewData(page) {
+        history.replace(location.pathname + "?" + params.toString());
+    };
+
+    // Function to handle page navigation
+    const onPageNav = (index) => {
+        setPage(index);
+        setHistory();
+        collection.updatePage(index);
+    };
+
+    // Function to handle new data
+    const gotNewData = (newPage) => {
         // If the returned result has fewer number of pages, keep the page within bounds
-        let index = this.state.page;
-        if (index && page.last_page < index) {
-            this.onPageNav(page.last_page);
+        if (newPage.last_page < page) {
+            onPageNav(newPage.last_page);
         }
-    }
+    };
 
-    setHistory() {
-        if (this.state.search === "") {
-            this.params.delete("search");
-        } else {
-            this.params.set("search", this.state.search);
-        }
+    // Effect to subscribe to collection updates
+    useEffect(() => {
+        const unsubscribe = collection.subscribe(({ page: currentPage }) => {
+            gotNewData(currentPage); // Use renamed parameter to avoid shadowing
+        });
 
-        if (this.state.page === 1) {
-            this.params.delete("page");
-        } else {
-            this.params.set("page", this.state.page);
-        }
+        return () => {
+            unsubscribe();
+        };
+    }, [collection]);
 
-        this.props.history.replace(
-            this.props.location.pathname + "?" + this.params.toString(),
-        );
-    }
+    // Function to handle search term updates
+    const onSearch = (term) => {
+        setSearch(term);
+        setHistory();
+        collection.updateSearch(term);
+    };
 
-    onSearch(term) {
-        this.setState({ search: term }, this.setHistory);
-        this.collection.updateSearch(term);
-    }
-
-    onPageNav(index) {
-        this.setState({ page: index }, this.setHistory);
-        this.collection.updatePage(index);
-    }
+    return (
+        <div>
+            {/* Add your JSX UI for navigation */}
+            <input
+                type="text"
+                value={search}
+                onChange={(e) => onSearch(e.target.value)}
+                placeholder="Search..."
+            />
+            <button onClick={() => onPageNav(page - 1)} disabled={page <= 1}>
+                Previous
+            </button>
+            <button onClick={() => onPageNav(page + 1)}>Next</button>
+        </div>
+    );
 }
