@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "react-day-picker/lib/style.css";
 import { Link } from "react-router-dom";
 import CollectionTable from "../Components/CollectionTable";
@@ -19,7 +19,6 @@ const MemberBoxSpans = (props) => {
         includeDeleted: true,
     });
 
-    const [items, setItems] = useState([]);
     const [pendingLabAccessDays, setPendingLabAccessDays] = useState("?");
 
     useEffect(() => {
@@ -28,18 +27,22 @@ const MemberBoxSpans = (props) => {
             const response = await get({
                 url: `/membership/member/${props.match.params.member_id}/pending_actions`,
             });
-            const sumPendingLabAccessDays = response.data.reduce((acc, value) => {
-                if (value.action.action === ADD_LABACCESS_DAYS) return acc + value.action.value;
-                return acc;
-            }, 0);
+            const sumPendingLabAccessDays = response.data.reduce(
+                (acc, value) => {
+                    if (value.action.action === ADD_LABACCESS_DAYS)
+                        return acc + value.action.value;
+                    return acc;
+                },
+                0,
+            );
             setPendingLabAccessDays(sumPendingLabAccessDays);
         };
 
         fetchPendingActions();
 
         // Subscribe to collection
-        const unsubscribe = collection.subscribe(({ items }) => {
-            setItems(items);
+        const unsubscribe = collection.subscribe(() => {
+            // No need to handle the subscription data since it's unused
         });
 
         // Cleanup on component unmount
@@ -53,15 +56,15 @@ const MemberBoxSpans = (props) => {
             .then(() => item.del())
             .then(
                 () => collection.fetch(),
-                () => null
+                () => null,
             );
 
     return (
         <div className="uk-margin-top">
             <h2>Medlemsperioder</h2>
             <p>
-                <b>{pendingLabAccessDays}</b> dagar labaccess
-                kommer läggas till vid en nyckelsynkronisering.
+                <b>{pendingLabAccessDays}</b> dagar labaccess kommer läggas till
+                vid en nyckelsynkronisering.
             </p>
             <hr />
             <MembershipPeriodsInput
@@ -84,10 +87,14 @@ const MemberBoxSpans = (props) => {
                 rowComponent={({ item }) => (
                     <tr>
                         <td>
-                            <Link to={"/membership/spans/" + item.id}>{item.id}</Link>
+                            <Link to={"/membership/spans/" + item.id}>
+                                {item.id}
+                            </Link>
                         </td>
                         <td>
-                            <Link to={"/membership/spans/" + item.id}>{item.type}</Link>
+                            <Link to={"/membership/spans/" + item.id}>
+                                {item.type}
+                            </Link>
                         </td>
                         <td>
                             <DateTimeShow date={item.created_at} />
@@ -103,7 +110,10 @@ const MemberBoxSpans = (props) => {
                             <DateShow date={item.enddate} />
                         </td>
                         <td>
-                            <a onClick={() => deleteItem(item)} className="removebutton">
+                            <a
+                                onClick={() => deleteItem(item)}
+                                className="removebutton"
+                            >
                                 <i className="uk-icon-trash" />
                             </a>
                         </td>

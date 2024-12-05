@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
+import CollectionTable from "../Components/CollectionTable";
 import Collection from "../Models/Collection";
 import ServiceAccessToken from "../Models/ServiceAccessToken";
-import CollectionTable from "../Components/CollectionTable";
 import { del } from "../gateway";
 
 const Row = ({ item, collection }) => {
@@ -27,7 +27,7 @@ const Row = ({ item, collection }) => {
 };
 
 const ServiceTokenList = () => {
-    const [collection, setCollection] = useState(new Collection({ type: ServiceAccessToken }));
+    const [collection] = useState(new Collection({ type: ServiceAccessToken }));
 
     useEffect(() => {
         collection.fetch();
