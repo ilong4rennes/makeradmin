@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 
 export default function CollectionNavigation({ collection }) {
     const location = useLocation();
-    const history = useNavigate();
+    const history = useHistory();
     const params = new URLSearchParams(location.search);
 
     const [search, setSearch] = useState(params.get("search") || "");

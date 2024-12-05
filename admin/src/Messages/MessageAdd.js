@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import MessageForm from "../Components/MessageForm";
 import Message from "../Models/Message";
 import { notifySuccess } from "../message";
-import { useNavigate } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 export default function MessageAdd() {
     const [message] = useState(new Message());
-    const navigate = useNavigate();
+    const navigate = useHistory();
 
     const onSend = () => {
         message.save().then(() => {

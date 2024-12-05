@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import Product from "../Models/Product";
 import ProductForm from "../Components/ProductForm";
 import { confirmModal } from "../message";
@@ -7,7 +7,7 @@ import { confirmModal } from "../message";
 const ProductEdit = () => {
     const { id } = useParams(); // Use useParams to get the route parameter
     const [product, setProduct] = useState(null);
-    const history = useNavigate();
+    const history = useHistory();
 
     // Fetch the product on mount
     useEffect(() => {
