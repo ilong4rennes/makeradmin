@@ -1,11 +1,11 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Product from "../Models/Product";
 import ProductForm from "../Components/ProductForm";
 
 const ProductAdd = () => {
     const product = new Product();
-    const history = useHistory();
+    const history = useNavigate();
 
     const handleSave = () => {
         product.save().then(() => {
