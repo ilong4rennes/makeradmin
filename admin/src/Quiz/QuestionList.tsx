@@ -1,60 +1,49 @@
 import React from "react";
-import { Link, withRouter } from "react-router-dom";
+import { Link } from "react-router-dom";
 import CollectionTable from "../Components/CollectionTable";
 import Collection from "../Models/Collection";
 import CollectionNavigation from "../Models/CollectionNavigation";
-import QuizQuestion from "../Models/QuizQuestion";
+import Quiz from "../Models/Quiz";
 
-interface QuestionListProps {
-    quiz_id: number;
-}
-
-export class QuestionList extends CollectionNavigation {
+// TODO: experiment with this code snippet
+class QuizList extends CollectionNavigation {
     collection: Collection;
 
-    constructor(props: QuestionListProps) {
+    constructor(props: any) {
         super(props);
         const { search, page } = this.state;
-        const url = `/quiz/quiz/${props.quiz_id}/questions`;
-        this.collection = new Collection({
-            type: QuizQuestion,
-            url,
-            search,
-            page,
-        });
+        this.collection = new Collection({ type: Quiz, search, page });
     }
 
     render() {
         return (
             <div className="uk-margin-top">
-                <h2>Quizfrågor</h2>
+                <h2>Quizzes</h2>
+                <p className="uk-float-left">
+                    På denna sida ser du en lista med samtliga quiz.
+                </p>
                 <Link
                     className="uk-button uk-button-primary uk-margin-bottom uk-float-right"
-                    to={`/quiz/${this.props.quiz_id}/question/add`}
+                    to="/quiz/add"
                 >
-                    <i className="uk-icon-plus-circle" /> Skapa ny fråga
+                    <i className="uk-icon-plus-circle" /> Skapa nytt quiz
                 </Link>
                 <CollectionTable
                     className="uk-margin-top"
                     collection={this.collection}
-                    emptyMessage="Inga frågor"
-                    columns={[{ title: "Fråga" }, { title: "" }]}
+                    emptyMessage="Inga quiz"
+                    columns={[{ title: "Namn" }, { title: "" }]}
                     onPageNav={this.onPageNav}
                     rowComponent={({
                         item,
                         deleteItem,
                     }: {
-                        item: QuizQuestion;
+                        item: Quiz;
                         deleteItem: any;
                     }) => (
                         <tr>
                             <td>
-                                <Link to={"/quiz/question/" + item.id}>
-                                    {item.question.slice(
-                                        0,
-                                        Math.min(item.question.length, 100),
-                                    )}
-                                </Link>
+                                <Link to={"/quiz/" + item.id}>{item.name}</Link>
                             </td>
                             <td>
                                 <a
@@ -72,5 +61,4 @@ export class QuestionList extends CollectionNavigation {
     }
 }
 
-const QuestionListRouter = withRouter(QuestionList);
-export default QuestionListRouter;
+export default QuizList;
