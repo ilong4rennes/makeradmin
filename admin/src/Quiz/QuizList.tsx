@@ -1,20 +1,49 @@
-import React from "react";
+import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import CollectionTable from "../Components/CollectionTable";
 import Collection from "../Models/Collection";
-import CollectionNavigation from "../Models/CollectionNavigation";
 import Quiz from "../Models/Quiz";
 
-class QuizList extends CollectionNavigation {
+interface QuizListState {
+    search: string;
+    page: number;
     collection: Collection;
+}
 
-    constructor(props: any) {
+class QuizList extends Component<{}, QuizListState> {
+    constructor(props: {}) {
         super(props);
-        const { search, page } = this.state;
-        this.collection = new Collection({ type: Quiz, search, page });
+
+        // Initialize state
+        this.state = {
+            search: "",
+            page: 1,
+            collection: new Collection({ type: Quiz, search: "", page: 1 }),
+        };
+
+        this.onPageNav = this.onPageNav.bind(this);
+        this.onSearch = this.onSearch.bind(this);
+    }
+
+    // Handle search updates
+    onSearch(term: string) {
+        const { collection } = this.state;
+        this.setState({ search: term, page: 1 }, () => {
+            collection.updateSearch(term);
+        });
+    }
+
+    // Handle page navigation
+    onPageNav(index: number) {
+        const { collection } = this.state;
+        this.setState({ page: index }, () => {
+            collection.updatePage(index);
+        });
     }
 
     render() {
+        const { search, page, collection } = this.state;
+
         return (
             <div className="uk-margin-top">
                 <h2>Quizzes</h2>
@@ -27,9 +56,15 @@ class QuizList extends CollectionNavigation {
                 >
                     <i className="uk-icon-plus-circle" /> Skapa nytt quiz
                 </Link>
+                <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => this.onSearch(e.target.value)}
+                    placeholder="Search..."
+                />
                 <CollectionTable
                     className="uk-margin-top"
-                    collection={this.collection}
+                    collection={collection}
                     emptyMessage="Inga quiz"
                     columns={[{ title: "Namn" }, { title: "" }]}
                     onPageNav={this.onPageNav}
@@ -55,6 +90,17 @@ class QuizList extends CollectionNavigation {
                         </tr>
                     )}
                 />
+                <div>
+                    <button
+                        onClick={() => this.onPageNav(page - 1)}
+                        disabled={page <= 1}
+                    >
+                        Previous
+                    </button>
+                    <button onClick={() => this.onPageNav(page + 1)}>
+                        Next
+                    </button>
+                </div>
             </div>
         );
     }

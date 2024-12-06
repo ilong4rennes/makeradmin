@@ -16,13 +16,13 @@ interface Props {
 
 class QuizShow extends React.Component<Props, State> {
     unsubscribe: () => void;
-    quiz: Quiz;
 
-    constructor(props: any) {
+    constructor(props: Props) {
         super(props);
         const { id } = this.props.match.params;
         const quiz = Quiz.get(id) as Quiz;
         this.state = { quiz, loaded: false };
+        this.unsubscribe = () => {}; // Initialize to avoid undefined
     }
 
     componentDidMount() {
@@ -44,7 +44,9 @@ class QuizShow extends React.Component<Props, State> {
             await confirmModal(this.state.quiz.deleteConfirmMessage());
             await this.state.quiz.del();
             browserHistory.push("/quiz/");
-        } catch {}
+        } catch {
+            // Handle any errors gracefully
+        }
     }
 
     async restore() {
@@ -54,10 +56,12 @@ class QuizShow extends React.Component<Props, State> {
     }
 
     render() {
-        if (this.state.quiz.deleted_at !== null) {
+        const { quiz } = this.state;
+
+        if (quiz.deleted_at !== null) {
             return (
                 <>
-                    <h1>{this.state.quiz.name}</h1>
+                    <h1>{quiz.name}</h1>
                     <p>Det här quizzet har blivit raderat :(</p>
                 </>
             );
@@ -66,11 +70,12 @@ class QuizShow extends React.Component<Props, State> {
         return (
             <>
                 <QuizEditForm
-                    quiz={this.state.quiz}
+                    quiz={quiz}
                     onSave={() => this.save()}
                     onDelete={() => this.delete()}
                 />
-                <QuestionListRouter quiz_id={this.state.quiz.id} />
+                {/* Ensure quiz_id is declared in QuestionListRouter props */}
+                <QuestionListRouter quiz_id={quiz.id} />
             </>
         );
     }

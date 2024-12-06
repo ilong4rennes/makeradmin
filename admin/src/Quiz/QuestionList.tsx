@@ -1,20 +1,33 @@
 import React from "react";
-import { Link, withRouter } from "react-router-dom";
+import { Link, RouteComponentProps, withRouter } from "react-router-dom";
 import CollectionTable from "../Components/CollectionTable";
 import Collection from "../Models/Collection";
 import CollectionNavigation from "../Models/CollectionNavigation";
 import QuizQuestion from "../Models/QuizQuestion";
 
-// test
-interface QuestionListProps {
+interface QuestionListProps extends RouteComponentProps {
     quiz_id: number;
 }
 
-export class QuestionList extends CollectionNavigation {
+interface QuestionListState {
+    search: string;
+    page: number;
+}
+
+export class QuestionList extends React.Component<
+    QuestionListProps,
+    QuestionListState
+> {
     collection: Collection;
 
     constructor(props: QuestionListProps) {
         super(props);
+
+        this.state = {
+            search: "",
+            page: 1,
+        };
+
         const { search, page } = this.state;
         const url = `/quiz/quiz/${props.quiz_id}/questions`;
         this.collection = new Collection({
@@ -24,6 +37,11 @@ export class QuestionList extends CollectionNavigation {
             page,
         });
     }
+
+    onPageNav = (index: number) => {
+        this.collection.updatePage(index);
+        this.setState({ page: index });
+    };
 
     render() {
         return (
@@ -35,6 +53,7 @@ export class QuestionList extends CollectionNavigation {
                 >
                     <i className="uk-icon-plus-circle" /> Skapa ny fråga
                 </Link>
+                <CollectionNavigation collection={this.collection} />
                 <CollectionTable
                     className="uk-margin-top"
                     collection={this.collection}
@@ -73,5 +92,4 @@ export class QuestionList extends CollectionNavigation {
     }
 }
 
-const QuestionListRouter = withRouter(QuestionList);
-export default QuestionListRouter;
+export default withRouter(QuestionList);
